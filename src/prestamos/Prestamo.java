@@ -3,6 +3,7 @@ package prestamos;
 import prestamos.usuarioException.PrestamoInvalidoException;
 
 import java.time.*;
+import java.time.temporal.*;
 
 public class Prestamo {
     private String codigoLibro;
@@ -25,7 +26,25 @@ public class Prestamo {
         this.fechaDevolucionReal = null;
     }
 
-    public void registrarDevolucion(LocalDate fecha){
-        if (fecha == null || fecha.isBefore(this.fechaPrestamo)) return;
+    public void registrarDevolucion(LocalDate fecha) throws PrestamoInvalidoException {
+        if (fecha == null || fecha.isBefore(this.fechaPrestamo)) throw new PrestamoInvalidoException("La fecha indicada es nula o anterior a la fecha del préstamo");
+        this.fechaDevolucionReal = fecha;
+    }
+
+    public int calcularDiasRestraso(){
+        if (this.fechaDevolucionReal.isAfter(LocalDate.now())){
+            return (int) ChronoUnit.DAYS.between(this.fechaPrestamo, LocalDate.now());
+        } else {
+            return (int) ChronoUnit.DAYS.between(this.fechaDevolucionPrevista, this.fechaDevolucionReal);
+        }
+    }
+
+    public boolean estaRetrasado(){
+        return this.fechaDevolucionPrevista.isAfter(LocalDate.now());
+    }
+
+    @Override
+    public String toString(){
+        return "Código del libro: " + this.codigoLibro + ", título del libro: " + this.tituloLibro + ", fecha del préstamo: " + this.fechaPrestamo + ", fecha devolución prevista: " + this.fechaDevolucionPrevista + "\n\t" + this.socio;
     }
 }

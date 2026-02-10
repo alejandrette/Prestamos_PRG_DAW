@@ -42,7 +42,7 @@ public class Usuario extends Utils {
 
     @Override
     public String toString(){
-        String msg = this.sancionado ? "Sancionado hasta = " + formatoFecha(this.fechaFinSancion) : "Sin sanción";
+        String msg = this.sancionado ? ", Sancionado hasta = " + formatoFecha(this.fechaFinSancion) : ", Sin sanción";
         return "Usuario: " + this.nombre + ", email: " + this.email + ", numero de sócio: " + this.numeroSocio + ", fecha de registro: " + formatoFecha(this.fechaRegistro) + msg;
     }
 }
