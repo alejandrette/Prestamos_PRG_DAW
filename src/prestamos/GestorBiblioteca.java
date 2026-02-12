@@ -3,6 +3,7 @@ package prestamos;
 import prestamos.usuarioException.*;
 
 import java.time.*;
+import java.time.temporal.*;
 
 public class GestorBiblioteca extends Utils{
     private static final int MAX_USUARIOS = 50;
@@ -52,9 +53,42 @@ public class GestorBiblioteca extends Utils{
                 prestamos[i].registrarDevolucion(fechaDevolucion);
                 return true;
             }
-            if ()
+            // Comprobar funcionamiento
+            if (fechaDevolucion.isAfter(prestamos[i].getFechaDevolucionPrevista())){
+                int diasSancionar = (int) ChronoUnit.DAYS.between(fechaDevolucion, prestamos[i].getFechaDevolucionPrevista());
+                prestamos[i].getSocio().sancionar(diasSancionar);
+            }
         }
 
         return false;
+    }
+
+    public Usuario buscarUsuario(String numeroSocio){
+        for (int i = 0; i < numeroUsuarios; i++) {
+            if (usuarios[i].getNumeroSocio().equalsIgnoreCase(numeroSocio)) return usuarios[i];
+        }
+        return null;
+    }
+
+    public String getPrestamos(){
+        String prestamos = "";
+        for (int i = 0; i < numeroPrestamos; i++) {
+            prestamos += (i+1) + ". " + prestamos;
+        }
+
+        return prestamos;
+    }
+
+    public String getUsuarios(){
+        String usuarios = "";
+        for (int i = 0; i < numeroUsuarios; i++) {
+            usuarios += (i+1) + ". " + usuarios;
+        }
+
+        return usuarios;
+    }
+
+    public String toString(){
+        return this.getPrestamos() + this.getUsuarios();
     }
 }
