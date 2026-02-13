@@ -9,5 +9,13 @@ public class Utils {
         return fecha.format(formato);
     }
 
-    public String[]
+    public static LocalDate obtenerFechas(String fecha){
+        int[] nuevaFecha = new int[3];
+
+        nuevaFecha[0] = Integer.parseInt(fecha.substring(0, 2));
+        nuevaFecha[1] = Integer.parseInt(fecha.substring(3, 5));
+        nuevaFecha[2] = Integer.parseInt(fecha.substring(6));
+
+        return LocalDate.of(nuevaFecha[2], nuevaFecha[1], nuevaFecha[0]);
+    }
 }
