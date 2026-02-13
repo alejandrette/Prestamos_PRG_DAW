@@ -22,18 +22,23 @@ public class GestorBiblioteca extends Utils{
     }
 
     public void registrarUsuario(Usuario user) throws UsuarioRepetidoException {
+        if (user == null) throw new UsuarioRepetidoException("El usuario es nulo");
+
         for (int i = 0; i < numeroUsuarios; i++) {
             if (usuarios[i] == user) {
                 throw new UsuarioRepetidoException("El usuario ya pertenece a la lista");
-            } else {
-                usuarios[i] = user;
             }
         }
+
+        if (numeroUsuarios >= MAX_USUARIOS) throw new UsuarioRepetidoException("No se pueden registrar mas usuarios");
+
+        usuarios[numeroUsuarios] = user;
+        numeroUsuarios++;
     }
 
     public Prestamo realizarPrestamo(String codigoLibro, String tituloLibro, Usuario usuario, LocalDate fechaPrestamo) throws PrestamoInvalidoException, UsuarioSancionadoException, LibroNoDisponibleException{
-        if (usuario.estaSancionado()) throw new UsuarioSancionadoException("El usuario está sancionado hasta " + formatoFecha(usuario.getFechaFinSancion()));
         if (usuario == null) throw new PrestamoInvalidoException("Usuario nulo");
+        if (usuario.estaSancionado()) throw new UsuarioSancionadoException("El usuario está sancionado hasta " + formatoFecha(usuario.getFechaFinSancion()));
 
         for (int i = 0; i < numeroPrestamos; i++) {
             Prestamo p = prestamos[i];
@@ -42,7 +47,12 @@ public class GestorBiblioteca extends Utils{
             }
         }
 
-        return new Prestamo(codigoLibro, tituloLibro, usuario, fechaPrestamo);
+        if (numeroPrestamos >= MAX_PRESTAMOS) throw new PrestamoInvalidoException("No se pueden registrar mas prestamos");
+
+        Prestamo nuevoPrestamo = new Prestamo(codigoLibro, tituloLibro, usuario, fechaPrestamo);
+        prestamos[numeroPrestamos] = nuevoPrestamo;
+        numeroPrestamos++;
+        return nuevoPrestamo;
     }
 
     public boolean devolverLibro(String codigoLibro, LocalDate fechaDevolucion) throws PrestamoInvalidoException{
@@ -70,25 +80,34 @@ public class GestorBiblioteca extends Utils{
         return null;
     }
 
-    public String getPrestamos(){
-        String prestamos = "";
-        for (int i = 0; i < numeroPrestamos; i++) {
-            prestamos += (i+1) + ". " + prestamos;
+    public Prestamo[] getPrestamos(){
+        Prestamo[] copia = new Prestamo[numeroPrestamos];
+        for (int i = 0; i < this.numeroPrestamos; i++) {
+            copia[i] = prestamos[numeroPrestamos];
         }
 
-        return prestamos;
+        return copia;
     }
 
-    public String getUsuarios(){
-        String usuarios = "";
-        for (int i = 0; i < numeroUsuarios; i++) {
-            usuarios += (i+1) + ". " + usuarios;
+    public Usuario[] getUsuarios(){
+        Usuario[] copia = new Usuario[numeroUsuarios];
+        for (int i = 0; i < this.numeroUsuarios; i++) {
+            copia[i] = this.usuarios[i];
         }
 
-        return usuarios;
+        return copia;
     }
 
     public String toString(){
-        return this.getPrestamos() + this.getUsuarios();
+        String stringUsuario = "=== USUARIOS === \n";
+        for (int i = 0; i < this.numeroUsuarios; i++) {
+            stringUsuario += " - " + usuarios[i] + "\n";
+        }
+
+        String stringPrestamo = "=== Prestamos === \n";
+        for (int i = 0; i < this.numeroPrestamos; i++) {
+            stringPrestamo += " - " + prestamos[i] + "\n";
+        }
+        return stringUsuario + stringPrestamo;
     }
 }

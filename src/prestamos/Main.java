@@ -1,19 +1,21 @@
 package prestamos;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main extends Utils {
     public static void mostrarMenu(){
-        System.out.println("=== SISTEMA GESTIÓN BIBLIOTECA ===" +
-                "1. Registrar nuevo usuario \n" +
-                "2. Realizar préstamo de libro \n" +
-                "3. Devolver libro \n" +
-                "4. Consultar estado de usuario \n" +
-                "5. Mostrar préstamos activos \n" +
-                "6. Mostrar usuarios sancionados \n" +
-                "7. Actualizar sanciones \n" +
-                "8. Salir");
+        System.out.println("""
+                === SISTEMA GESTIÓN BIBLIOTECA ===\s
+                1. Registrar nuevo usuario\s
+                2. Realizar préstamo de libro\s
+                3. Devolver libro\s
+                4. Consultar estado de usuario\s
+                5. Mostrar préstamos activos\s
+                6. Mostrar usuarios sancionados\s
+                7. Actualizar sanciones\s
+                8. Salir""");
     }
 
     public static boolean registrarNuevoUsuario(Scanner in, GestorBiblioteca gestor){
@@ -29,8 +31,8 @@ public class Main extends Utils {
             System.out.println("Fecha registro (dd/mm/aaaa): ");
             fechaRegistro = in.nextLine();
 
-            Usuario u = new Usuario(nombre, email, numSocio, obtenerFechas(fechaRegistro));
-            gestor.registrarUsuario(u);
+            Usuario usuario = new Usuario(nombre, email, numSocio, obtenerFechas(fechaRegistro));
+            gestor.registrarUsuario(usuario);
             return true;
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -38,7 +40,7 @@ public class Main extends Utils {
         return false;
     }
 
-    public static LocalDate realizarPrestamoLibro(Scanner in, GestorBiblioteca gestor){
+    public static boolean realizarPrestamoLibro(Scanner in, GestorBiblioteca gestor){
         String codigoLibro, titulo, numSocio, fechaPrestamo;
 
         try{
@@ -51,15 +53,18 @@ public class Main extends Utils {
             System.out.println("Fecha de préstamo (dd/mm/aaaa): ");
             fechaPrestamo = in.nextLine();
 
+            Usuario usuario = gestor.buscarUsuario(numSocio);
+            if (usuario == null) {
+                System.out.println("No se ha encontrado al usuario con número de socio " + numSocio);
+            }
 
-
-            Prestamo nuevoPrestamo = new Prestamo(codigoLibro, titulo, numSocio, obtenerFechas(fechaPrestamo));
-            System.out.println("Préstamo realizado");
-            return nuevoPrestamo.getFechaDevolucionPrevista();
+            Prestamo nuevoPrestamo = gestor.realizarPrestamo(codigoLibro, titulo, usuario, obtenerFechas(fechaPrestamo));
+            System.out.println("Devolución prevista: " + formatoFecha(nuevoPrestamo.getFechaDevolucionPrevista()));
+            return true;
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
-        return null;
+        return false;
     }
 
     public static void main(String[] args) {
@@ -74,11 +79,11 @@ public class Main extends Utils {
                 opcion = Integer.parseInt(in.nextLine());
                 switch (opcion){
                     case 1:
-                        String rnu = registrarNuevoUsuario(in, gestor) ? "Usuario correctamente registrado" : "No se ha podido registrar el usuario";
+                        String rnu = registrarNuevoUsuario(in, gestor) ? "Usuario correctamente registrado." : "No se ha podido registrar el usuario.";
                         System.out.println(rnu);
                         break;
                     case 2:
-                        String rpl = realizarPrestamoLibro(in, gestor) ? "Usuario correctamente registrado" : "No se ha podido registrar el usuario";
+                        String rpl = realizarPrestamoLibro(in, gestor) ? "Préstamo realizado." : "No se ha podido realizar el préstamo.";
                         System.out.println(rpl);
                         break;
                     case 3:

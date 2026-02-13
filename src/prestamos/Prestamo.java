@@ -34,7 +34,7 @@ public class Prestamo extends Utils{
         this.fechaDevolucionReal = fecha;
     }
 
-    public int calcularDiasRestraso(){
+    public int calcularDiasRetraso(){
         if (this.fechaDevolucionReal.isAfter(LocalDate.now())){
             return (int) ChronoUnit.DAYS.between(this.fechaPrestamo, LocalDate.now());
         } else {
@@ -59,7 +59,7 @@ public class Prestamo extends Utils{
     }
 
     public LocalDate getFechaDevolucionPrevista() {
-        return fechaDevolucionPrevista;
+        return this.fechaDevolucionPrevista;
     }
 
     public String getTituloLibro() {
