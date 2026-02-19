@@ -68,7 +68,7 @@ public class Prestamo{
     }
 
     public boolean estaDevuelto() {
-        return this.fechaDevolucionReal != null;
+        return this.fechaDevolucionReal == null;
     }
 
     @Override

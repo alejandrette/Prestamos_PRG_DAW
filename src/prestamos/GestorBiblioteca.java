@@ -99,9 +99,9 @@ public class GestorBiblioteca{
     public void levantarSanciones(){
         Usuario[] usuariosALevantar = this.getUsuarios();
 
-        for (int i = 0; i < usuariosALevantar.length; i++) {
-            if (usuariosALevantar[i].getFechaFinSancion().isBefore(LocalDate.now())){
-                usuariosALevantar[i].levantarSancion();
+        for (Usuario usuario : usuariosALevantar) {
+            if (usuario.getFechaFinSancion().isBefore(LocalDate.now())) {
+                usuario.levantarSancion();
             }
         }
     }
