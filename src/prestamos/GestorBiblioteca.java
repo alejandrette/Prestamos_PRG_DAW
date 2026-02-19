@@ -5,7 +5,7 @@ import prestamos.usuarioException.*;
 import java.time.*;
 import java.time.temporal.*;
 
-public class GestorBiblioteca extends Utils{
+public class GestorBiblioteca{
     private static final int MAX_USUARIOS = 50;
     private static final int MAX_PRESTAMOS = 200;
 
@@ -25,7 +25,7 @@ public class GestorBiblioteca extends Utils{
         if (user == null) throw new UsuarioRepetidoException("El usuario es nulo");
 
         for (int i = 0; i < numeroUsuarios; i++) {
-            if (usuarios[i] == user) {
+            if (usuarios[i].getNumeroSocio().equals(user.getNumeroSocio())) {
                 throw new UsuarioRepetidoException("El usuario ya pertenece a la lista");
             }
         }
@@ -38,11 +38,10 @@ public class GestorBiblioteca extends Utils{
 
     public Prestamo realizarPrestamo(String codigoLibro, String tituloLibro, Usuario usuario, LocalDate fechaPrestamo) throws PrestamoInvalidoException, UsuarioSancionadoException, LibroNoDisponibleException{
         if (usuario == null) throw new PrestamoInvalidoException("Usuario nulo");
-        if (usuario.estaSancionado()) throw new UsuarioSancionadoException("El usuario está sancionado hasta " + formatoFecha(usuario.getFechaFinSancion()));
+        if (usuario.estaSancionado()) throw new UsuarioSancionadoException("El usuario está sancionado hasta " + Utils.formatoFecha(usuario.getFechaFinSancion()));
 
         for (int i = 0; i < numeroPrestamos; i++) {
-            Prestamo p = prestamos[i];
-            if (p.getCodigoLibro().equalsIgnoreCase(codigoLibro)) {
+            if (prestamos[i].getCodigoLibro().equalsIgnoreCase(codigoLibro)) {
                 throw new LibroNoDisponibleException("El libro está actualmente prestado");
             }
         }
@@ -56,17 +55,16 @@ public class GestorBiblioteca extends Utils{
     }
 
     public boolean devolverLibro(String codigoLibro, LocalDate fechaDevolucion) throws PrestamoInvalidoException{
-        if (fechaDevolucion.isBefore(LocalDate.now())) throw new PrestamoInvalidoException("La fecha de devolución es anterior al prestamo");
+        if (codigoLibro == null) throw new PrestamoInvalidoException("Código de libro vacío");
+        if (fechaDevolucion == null) throw new PrestamoInvalidoException("La fecha de devolución es nula");
 
         for (int i = 0; i < numeroPrestamos; i++) {
             if (codigoLibro.equalsIgnoreCase(prestamos[i].getCodigoLibro())){
                 prestamos[i].registrarDevolucion(fechaDevolucion);
+
+                int retraso = prestamos[i].calcularDiasRetraso();
+                if (retraso > 0) prestamos[i].getSocio().sancionar(retraso);
                 return true;
-            }
-            // Comprobar funcionamiento
-            if (fechaDevolucion.isAfter(prestamos[i].getFechaDevolucionPrevista())){
-                int diasSancionar = (int) ChronoUnit.DAYS.between(fechaDevolucion, prestamos[i].getFechaDevolucionPrevista());
-                prestamos[i].getSocio().sancionar(diasSancionar);
             }
         }
 
@@ -83,7 +81,7 @@ public class GestorBiblioteca extends Utils{
     public Prestamo[] getPrestamos(){
         Prestamo[] copia = new Prestamo[numeroPrestamos];
         for (int i = 0; i < this.numeroPrestamos; i++) {
-            copia[i] = prestamos[numeroPrestamos];
+            copia[i] = this.prestamos[i];
         }
 
         return copia;
@@ -96,6 +94,16 @@ public class GestorBiblioteca extends Utils{
         }
 
         return copia;
+    }
+
+    public void levantarSanciones(){
+        Usuario[] usuariosALevantar = this.getUsuarios();
+
+        for (int i = 0; i < usuariosALevantar.length; i++) {
+            if (usuariosALevantar[i].getFechaFinSancion().isBefore(LocalDate.now())){
+                usuariosALevantar[i].levantarSancion();
+            }
+        }
     }
 
     public String toString(){

@@ -4,7 +4,7 @@ import prestamos.usuarioException.*;
 
 import java.time.*;
 
-public class Usuario extends Utils {
+public class Usuario {
     private String nombre;
     private String email;
     private String numeroSocio;
@@ -13,7 +13,7 @@ public class Usuario extends Utils {
     private LocalDate fechaFinSancion;
 
     public Usuario(String nombre, String email, String numeroSocio, LocalDate fechaRegistro) throws UsuarioInvalidoException {
-        if (nombre.isEmpty() || nombre == null) throw new UsuarioInvalidoException("Falta nombre de usuario");
+        if (nombre == null || nombre.isEmpty()) throw new UsuarioInvalidoException("Falta nombre de usuario");
         if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) throw new UsuarioInvalidoException("El formato de email es inválido (ejemplo@gmail.com)");
         if (!numeroSocio.matches("^SOC\\d{5}$")) throw new UsuarioInvalidoException("El formato de número de sócio es inválido (SOC12345)");
         if (fechaRegistro == null) throw new UsuarioInvalidoException("La fecha de registro está incompleta");
@@ -27,7 +27,7 @@ public class Usuario extends Utils {
     }
 
     public void sancionar(int dias){
-        this.fechaFinSancion = fechaFinSancion.plusDays(dias);
+        this.fechaFinSancion = LocalDate.now().plusDays(dias);
         this.sancionado = true;
     }
 
@@ -37,7 +37,13 @@ public class Usuario extends Utils {
     }
 
     public boolean estaSancionado(){
-        return this.sancionado;
+        if (!this.sancionado) return false;
+        if (this.fechaFinSancion == null) return false;
+        if(this.fechaFinSancion.isBefore(LocalDate.now())) {
+            levantarSancion();
+            return false;
+        }
+        return true;
     }
 
     public String getNombre() {
@@ -66,7 +72,7 @@ public class Usuario extends Utils {
 
     @Override
     public String toString(){
-        String msg = this.sancionado ? ", Sancionado hasta = " + formatoFecha(this.fechaFinSancion) : ", Sin sanción";
-        return "Usuario: " + this.nombre + ", email: " + this.email + ", numero de sócio: " + this.numeroSocio + ", fecha de registro: " + formatoFecha(this.fechaRegistro) + msg;
+        String msg = this.sancionado ? ", Sancionado hasta = " + Utils.formatoFecha(this.fechaFinSancion) : ", Sin sanción";
+        return "Usuario: " + this.nombre + ", email: " + this.email + ", numero de sócio: " + this.numeroSocio + ", fecha de registro: " + Utils.formatoFecha(this.fechaRegistro) + msg;
     }
 }

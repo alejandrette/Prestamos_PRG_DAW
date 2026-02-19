@@ -5,7 +5,7 @@ import prestamos.usuarioException.PrestamoInvalidoException;
 import java.time.*;
 import java.time.temporal.*;
 
-public class Prestamo extends Utils{
+public class Prestamo{
     private String codigoLibro;
     private String tituloLibro;
     private Usuario socio;
@@ -35,11 +35,8 @@ public class Prestamo extends Utils{
     }
 
     public int calcularDiasRetraso(){
-        if (this.fechaDevolucionReal.isAfter(LocalDate.now())){
-            return (int) ChronoUnit.DAYS.between(this.fechaPrestamo, LocalDate.now());
-        } else {
-            return (int) ChronoUnit.DAYS.between(this.fechaDevolucionPrevista, this.fechaDevolucionReal);
-        }
+        LocalDate comparacion = (fechaDevolucionReal != null) ? fechaDevolucionReal : LocalDate.now();
+        return (int) ChronoUnit.DAYS.between(this.fechaDevolucionPrevista, comparacion);
     }
 
     public boolean estaRetrasado(){
@@ -66,8 +63,16 @@ public class Prestamo extends Utils{
         return tituloLibro;
     }
 
+    public LocalDate getFechaDevolucionReal() {
+        return this.fechaDevolucionReal;
+    }
+
+    public boolean estaDevuelto() {
+        return this.fechaDevolucionReal != null;
+    }
+
     @Override
     public String toString(){
-        return "Código del libro: " + this.codigoLibro + ", título del libro: " + this.tituloLibro + ", fecha del préstamo: " + formatoFecha(this.fechaPrestamo) + ", fecha devolución prevista: " + formatoFecha(this.fechaDevolucionPrevista) + "\n\t" + this.socio;
+        return "\nCódigo del libro: " + this.codigoLibro + ", título del libro: " + this.tituloLibro + ", fecha del préstamo: " + Utils.formatoFecha(this.fechaPrestamo) + ", fecha devolución prevista: " + Utils.formatoFecha(this.fechaDevolucionPrevista) + "\n\t" + this.socio;
     }
 }
