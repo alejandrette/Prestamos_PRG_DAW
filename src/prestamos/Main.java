@@ -8,8 +8,8 @@ import java.util.Scanner;
 
 public class Main{
     public static void mostrarMenu(){
-        System.out.println("""
-                === SISTEMA GESTIÓN BIBLIOTECA ===\s
+        System.out.println("\u001B[34m === SISTEMA GESTIÓN BIBLIOTECA ===\u001B[0m");
+        System.out.println(""" 
                 1. Registrar nuevo usuario\s
                 2. Realizar préstamo de libro\s
                 3. Devolver libro\s
@@ -37,7 +37,7 @@ public class Main{
             gestor.registrarUsuario(usuario);
             return true;
         } catch (DateTimeParseException dte) {
-            System.out.println("Formato de fecha inválido (20/02/2026)");
+            System.out.println("\u001B[31m Formato de fecha inválido (20/02/2026)");
         } catch (UsuarioInvalidoException | UsuarioRepetidoException e) {
             System.out.println(e.getMessage());
         }
@@ -59,15 +59,15 @@ public class Main{
 
             Usuario usuario = gestor.buscarUsuario(numSocio);
             if (usuario == null) {
-                System.out.println("No se ha encontrado al usuario con número de socio " + numSocio);
+                System.out.println("\u001B[33m No se ha encontrado al usuario con número de socio " + numSocio);
                 return false;
             }
 
             Prestamo nuevoPrestamo = gestor.realizarPrestamo(codigoLibro, titulo, usuario, Utils.obtenerFechas(fechaPrestamo));
-            System.out.println("Devolución prevista: " + Utils.formatoFecha(nuevoPrestamo.getFechaDevolucionPrevista()));
+            System.out.println("\u001B[32m Devolución prevista: " + Utils.formatoFecha(nuevoPrestamo.getFechaDevolucionPrevista()));
             return true;
         } catch (DateTimeParseException dte) {
-            System.out.println("Formato de fecha inválido (20/02/2026)");
+            System.out.println("\u001B[33m Formato de fecha inválido (20/02/2026)");
         } catch (UsuarioSancionadoException | LibroNoDisponibleException | PrestamoInvalidoException e){
             System.out.println(e.getMessage());
         }
@@ -93,19 +93,19 @@ public class Main{
 
             boolean devolver = gestor.devolverLibro(codigoLibro, Utils.obtenerFechas(fechaDevolucion));
             if (!devolver){
-                System.out.println("Préstamo ya devuelto o no existe el código de libro");
+                System.out.println("\u001B[33m Préstamo ya devuelto o no existe el código de libro");
                 return;
             }
 
             int diasRetraso = (prestamoActivo != null) ? prestamoActivo.calcularDiasRetraso() : 0;
             if (diasRetraso > 0){
-                System.out.println("Devolución registrada con " + diasRetraso + " días de retraso");
-                System.out.println("Usuario sancionado por " + diasRetraso + " días (hasta el " + Utils.formatoFecha(prestamoActivo.getSocio().getFechaFinSancion()) + ")");
+                System.out.println("\u001B[33mDevolución registrada con " + diasRetraso + " días de retraso");
+                System.out.println("\u001B[33m Usuario sancionado por " + diasRetraso + " días (hasta el " + Utils.formatoFecha(prestamoActivo.getSocio().getFechaFinSancion()) + ")");
             } else {
-                System.out.println("Devolución realizada");
+                System.out.println("\u001B[32m Devolución realizada");
             }
         } catch (DateTimeParseException dte) {
-            System.out.println("Formato de fecha inválido (20/02/2026)");
+            System.out.println("\u001B[33m Formato de fecha inválido (20/02/2026)");
         } catch (PrestamoInvalidoException pie) {
             System.out.println(pie.getMessage());
         }
@@ -115,9 +115,9 @@ public class Main{
         Prestamo[] prestamos = gestor.getPrestamos();
 
         try {
-            System.out.println("=== Prestamos Activos ===");
+            System.out.println("\u001B[34m === Prestamos Activos ===\u001B[0m");
             if (prestamos.length == 0) {
-                System.out.println("No hay prestamos activos");
+                System.out.println("\u001B[33m No hay prestamos activos");
                 return;
             }
 
@@ -143,9 +143,9 @@ public class Main{
                 }
             }
 
-            System.out.println("=== Usuarios Sancionados ===");
+            System.out.println("\u001B[34m === Usuarios Sancionados ===\u001B[0m");
             if (usuariosSancionados[0] == null) {
-                System.out.println("No hay usuarios sancionados");
+                System.out.println("\u001B[33m No hay usuarios sancionados");
                 return;
             }
             for (Usuario user: usuariosSancionados) {
@@ -163,10 +163,11 @@ public class Main{
             System.out.println("Escribe el número de sócio que quieres consultar (SOC00001): ");
             numSocio = in.nextLine();
 
+            System.out.println("\u001B[34m === Estado del usuario ===\u001B[0m");
             if (gestor.buscarUsuario(numSocio) != null){
                 System.out.println(gestor.buscarUsuario(numSocio));
             } else {
-                System.out.println("No existe ese número de sócio");
+                System.out.println("\u001B[33m No existe ese número de sócio");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -185,11 +186,11 @@ public class Main{
                 opcion = Integer.parseInt(in.nextLine());
                 switch (opcion){
                     case 1:
-                        String rnu = registrarNuevoUsuario(in, gestor) ? "Usuario correctamente registrado." : "No se ha podido registrar el usuario.";
+                        String rnu = registrarNuevoUsuario(in, gestor) ? "\u001B[32m Usuario correctamente registrado." : "\u001B[33m No se ha podido registrar el usuario.";
                         System.out.println(rnu);
                         break;
                     case 2:
-                        String rpl = realizarPrestamoLibro(in, gestor) ? "Préstamo realizado." : "No se ha podido realizar el préstamo.";
+                        String rpl = realizarPrestamoLibro(in, gestor) ? "\u001B[32m Préstamo realizado." : "\u001B[33m No se ha podido realizar el préstamo.";
                         System.out.println(rpl);
                         break;
                     case 3:
@@ -206,7 +207,7 @@ public class Main{
                         break;
                     case 7:
                         boolean levantadas = gestor.levantarSanciones();
-                        System.out.println(levantadas ? "Sanciones levantadas a usuarios" : "No hay usuarios a poder levantar sanciones");
+                        System.out.println(levantadas ? "\u001B[32m Sanciones levantadas a usuarios" : "\u001B[33m No hay usuarios a poder levantar sanciones");
                         break;
                     case 8:
                         System.out.println("Saliendo del programa...");
@@ -214,7 +215,7 @@ public class Main{
                     default:
                         System.out.println("Opciones válidas 1 - 8");
                 }
-                System.out.println("....");
+                System.out.println("\u001B[0m....");
                 in.nextLine();
             } catch (NumberFormatException nfe){
                 System.out.println("Opciones válidas 1 - 8");
