@@ -97,14 +97,17 @@ public class GestorBiblioteca{
         return copia;
     }
 
-    public void levantarSanciones(){
+    public boolean levantarSanciones(){
         Usuario[] usuariosALevantar = this.getUsuarios();
+        boolean levantadas = false;
 
         for (Usuario usuario : usuariosALevantar) {
             if (usuario != null && usuario.getFechaFinSancion().isBefore(LocalDate.now()) && usuario.getFechaFinSancion() != null) {
                 usuario.levantarSancion();
+                levantadas = true;
             }
         }
+        return levantadas;
     }
 
     public String toString(){

@@ -85,8 +85,9 @@ public class Main{
 
             Prestamo prestamoActivo = null;
             for (Prestamo prestamo: gestor.getPrestamos()){
-                if (prestamo != null && prestamo.getCodigoLibro().equalsIgnoreCase(codigoLibro) && prestamo.estaDevuelto()){
+                if (prestamo != null && prestamo.getCodigoLibro().equalsIgnoreCase(codigoLibro) && !prestamo.estaDevuelto()){
                     prestamoActivo = prestamo;
+                    break;
                 }
             }
 
@@ -115,7 +116,7 @@ public class Main{
 
         try {
             System.out.println("=== Prestamos Activos ===");
-            if (prestamos[0] == null) {
+            if (prestamos.length == 0) {
                 System.out.println("No hay prestamos activos");
                 return;
             }
@@ -151,7 +152,7 @@ public class Main{
                 if (user != null) System.out.println(user);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
         }
     }
 
@@ -168,7 +169,7 @@ public class Main{
                 System.out.println("No existe ese número de sócio");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
         }
     }
 
@@ -204,7 +205,8 @@ public class Main{
                         mostrarUsuariosSancionados(gestor);
                         break;
                     case 7:
-                        gestor.levantarSanciones();
+                        boolean levantadas = gestor.levantarSanciones();
+                        System.out.println(levantadas ? "Sanciones levantadas a usuarios" : "No hay usuarios a poder levantar sanciones");
                         break;
                     case 8:
                         System.out.println("Saliendo del programa...");
