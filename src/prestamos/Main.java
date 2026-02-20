@@ -3,8 +3,7 @@ package prestamos;
 import prestamos.usuarioException.*;
 import prestamos.usuarioException.PrestamoInvalidoException;
 
-import java.time.LocalDate;
-import java.util.Arrays;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Main{
@@ -37,6 +36,8 @@ public class Main{
             Usuario usuario = new Usuario(nombre, email, numSocio, Utils.obtenerFechas(fechaRegistro));
             gestor.registrarUsuario(usuario);
             return true;
+        } catch (DateTimeParseException dte) {
+            System.out.println("Formato de fecha inválido (20/02/2026)");
         } catch (UsuarioInvalidoException | UsuarioRepetidoException e) {
             System.out.println(e.getMessage());
         }
@@ -65,6 +66,8 @@ public class Main{
             Prestamo nuevoPrestamo = gestor.realizarPrestamo(codigoLibro, titulo, usuario, Utils.obtenerFechas(fechaPrestamo));
             System.out.println("Devolución prevista: " + Utils.formatoFecha(nuevoPrestamo.getFechaDevolucionPrevista()));
             return true;
+        } catch (DateTimeParseException dte) {
+            System.out.println("Formato de fecha inválido (20/02/2026)");
         } catch (UsuarioSancionadoException | LibroNoDisponibleException | PrestamoInvalidoException e){
             System.out.println(e.getMessage());
         }
@@ -80,10 +83,9 @@ public class Main{
             System.out.println("Fecha devolución (dd/mm/aaaa): ");
             fechaDevolucion = in.nextLine();
 
-            Prestamo[] prestamos = gestor.getPrestamos();
             Prestamo prestamoActivo = null;
-            for (Prestamo prestamo: prestamos){
-                if (prestamo != null && prestamo.getCodigoLibro().equalsIgnoreCase(codigoLibro)){
+            for (Prestamo prestamo: gestor.getPrestamos()){
+                if (prestamo != null && prestamo.getCodigoLibro().equalsIgnoreCase(codigoLibro) && prestamo.estaDevuelto()){
                     prestamoActivo = prestamo;
                 }
             }
@@ -101,8 +103,10 @@ public class Main{
             } else {
                 System.out.println("Devolución realizada");
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (DateTimeParseException dte) {
+            System.out.println("Formato de fecha inválido (20/02/2026)");
+        } catch (PrestamoInvalidoException pie) {
+            System.out.println(pie.getMessage());
         }
     }
 
@@ -117,7 +121,7 @@ public class Main{
             }
 
             for (Prestamo prestamo : prestamos) {
-                if (prestamo != null && prestamo.estaDevuelto()) {
+                if (prestamo != null && !prestamo.estaDevuelto()) {
                     System.out.println(prestamo);
                 }
             }
@@ -168,25 +172,10 @@ public class Main{
         }
     }
 
-    public static void main(String[] args) throws UsuarioInvalidoException, UsuarioRepetidoException, PrestamoInvalidoException, UsuarioSancionadoException, LibroNoDisponibleException {
+    public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         GestorBiblioteca gestor = new GestorBiblioteca();
         int opcion = 0;
-
-//        Usuario yo = new Usuario("Alejandro", "alejandro@gmail.com", "SOC00001", LocalDate.of(2021, 1, 1));
-//        Usuario el = new Usuario("Jhon", "jhon@gmail.com", "SOC00002", LocalDate.of(2022, 10, 10));
-//        Usuario otro = new Usuario("Ben", "ben@gmail.com", "SOC00003", LocalDate.of(2026, 12, 12));
-//        gestor.registrarUsuario(yo);
-//        gestor.registrarUsuario(el);
-//        gestor.registrarUsuario(otro);
-//        System.out.println(gestor.realizarPrestamo("LIB0001", "Celestina", yo, LocalDate.now()));
-//        System.out.println(gestor.realizarPrestamo("LIB0002", "Don Quijote", yo, LocalDate.now()));
-//        System.out.println(gestor.realizarPrestamo("LIB0003", "El Principito", el, LocalDate.now()));
-//        System.out.println(gestor.realizarPrestamo("LIB0004", "Padre rico y padre pobre", otro, LocalDate.now()));
-//        System.out.println(gestor.devolverLibro("LIB0003", LocalDate.of(2026, 10, 10)));
-//        System.out.println(gestor.devolverLibro("LIB0004", LocalDate.now()));
-//
-//        System.out.println(Arrays.toString(gestor.getUsuarios()));
 
         while (opcion != 8) {
             try{
@@ -209,7 +198,7 @@ public class Main{
                         mostrarEstadoUsuario(in, gestor);
                         break;
                     case 5:
-                        mostrarPrestamosActivos(gestor); // Solo ver prestamos que no se han devuelto
+                        mostrarPrestamosActivos(gestor);
                         break;
                     case 6:
                         mostrarUsuariosSancionados(gestor);
@@ -225,7 +214,7 @@ public class Main{
                 }
                 System.out.println("....");
                 in.nextLine();
-            } catch (Exception e){
+            } catch (NumberFormatException nfe){
                 System.out.println("Opciones válidas 1 - 8");
             }
         }

@@ -12,6 +12,7 @@ public class Utils {
 
     public static LocalDate obtenerFechas(String fecha){
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        if (fecha == null) throw new DateTimeParseException("Fecha incorrecta", "null", 0);
         return LocalDate.parse(fecha, formato);
     }
 }

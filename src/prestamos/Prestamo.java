@@ -31,6 +31,7 @@ public class Prestamo{
     public void registrarDevolucion(LocalDate fecha) throws PrestamoInvalidoException {
         if (fecha == null) throw new PrestamoInvalidoException("La fecha indicada es nula");
         if (fecha.isBefore(this.fechaPrestamo)) throw new PrestamoInvalidoException("La fecha indicada es anterior a la fecha del préstamo");
+        if (this.fechaDevolucionReal != null) throw new PrestamoInvalidoException("Préstamo ya fue devuelto");
         this.fechaDevolucionReal = fecha;
     }
 
@@ -68,7 +69,7 @@ public class Prestamo{
     }
 
     public boolean estaDevuelto() {
-        return this.fechaDevolucionReal == null;
+        return this.fechaDevolucionReal != null;
     }
 
     @Override

@@ -9,8 +9,8 @@ public class GestorBiblioteca{
     private static final int MAX_USUARIOS = 50;
     private static final int MAX_PRESTAMOS = 200;
 
-    private Usuario[] usuarios;
-    private Prestamo[] prestamos;
+    private final Usuario[] usuarios;
+    private final Prestamo[] prestamos;
     private int numeroUsuarios;
     private int numeroPrestamos;
 
@@ -41,7 +41,7 @@ public class GestorBiblioteca{
         if (usuario.estaSancionado()) throw new UsuarioSancionadoException("El usuario está sancionado hasta " + Utils.formatoFecha(usuario.getFechaFinSancion()));
 
         for (int i = 0; i < numeroPrestamos; i++) {
-            if (prestamos[i].getCodigoLibro().equalsIgnoreCase(codigoLibro)) {
+            if (prestamos[i] != null && prestamos[i].getCodigoLibro().equalsIgnoreCase(codigoLibro) && !prestamos[i].estaDevuelto()) {
                 throw new LibroNoDisponibleException("El libro está actualmente prestado");
             }
         }
@@ -60,6 +60,7 @@ public class GestorBiblioteca{
 
         for (int i = 0; i < numeroPrestamos; i++) {
             if (codigoLibro.equalsIgnoreCase(prestamos[i].getCodigoLibro())){
+                if (prestamos[i].estaDevuelto()) throw new PrestamoInvalidoException("Préstamo ya devuelto");
                 prestamos[i].registrarDevolucion(fechaDevolucion);
 
                 int retraso = prestamos[i].calcularDiasRetraso();
@@ -100,7 +101,7 @@ public class GestorBiblioteca{
         Usuario[] usuariosALevantar = this.getUsuarios();
 
         for (Usuario usuario : usuariosALevantar) {
-            if (usuario.getFechaFinSancion().isBefore(LocalDate.now())) {
+            if (usuario != null && usuario.getFechaFinSancion().isBefore(LocalDate.now()) && usuario.getFechaFinSancion() != null) {
                 usuario.levantarSancion();
             }
         }
